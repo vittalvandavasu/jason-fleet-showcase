@@ -1,0 +1,138 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: #0d1210;
+    color: #f5f2ea;
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+@layer base {
+  :root {
+        --background: 60 15% 96%;
+        --foreground: 150 12% 10%;
+        --card: 0 0% 100%;
+        --card-foreground: 150 12% 10%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 150 12% 10%;
+        --primary: 150 45% 18%;
+        --primary-foreground: 60 15% 96%;
+        --secondary: 60 10% 92%;
+        --secondary-foreground: 150 12% 10%;
+        --muted: 60 10% 92%;
+        --muted-foreground: 150 6% 40%;
+        --accent: 32 96% 52%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 60 8% 88%;
+        --input: 60 8% 88%;
+        --ring: 150 45% 25%;
+        --radius: 0.5rem;
+    }
+  .dark {
+        --background: 150 15% 6%;
+        --foreground: 60 15% 96%;
+        --card: 150 15% 9%;
+        --card-foreground: 60 15% 96%;
+        --popover: 150 15% 9%;
+        --popover-foreground: 60 15% 96%;
+        --primary: 60 15% 96%;
+        --primary-foreground: 150 45% 18%;
+        --secondary: 150 10% 14%;
+        --secondary-foreground: 60 15% 96%;
+        --muted: 150 10% 14%;
+        --muted-foreground: 60 5% 65%;
+        --accent: 32 96% 52%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 150 10% 18%;
+        --input: 150 10% 18%;
+        --ring: 32 96% 52%;
+    }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+.font-display { font-family: 'Bebas Neue', 'Inter', sans-serif; letter-spacing: 0.02em; }
+
+/* subtle noise for premium feel */
+.bg-noise {
+  position: relative;
+}
+.bg-noise::after {
+  content: '';
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.55;
+  mix-blend-mode: overlay;
+}
+
+.hero-gradient {
+  background:
+    radial-gradient(1200px 500px at 20% 10%, rgba(245, 158, 11, 0.10), transparent 60%),
+    linear-gradient(180deg, rgba(13, 18, 16, 0.55) 0%, rgba(13, 18, 16, 0.85) 60%, rgba(13, 18, 16, 0.98) 100%);
+}
+
+.section-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(245, 242, 234, 0.15), transparent);
+}
+
+.card-hover {
+  transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease, border-color 300ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -30px rgba(0,0,0,0.5), 0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+.marquee-track {
+  animation: marquee 40s linear infinite;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-glow {
+  box-shadow: 0 10px 30px -8px rgba(245, 158, 11, 0.55);
+}
+
+/* selection color */
+::selection { background: #f59e0b; color: #0d1210; }
+
+/* nice scroll */
+html { scroll-behavior: smooth; }
+
+/* input focus */
+.input-dark:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
