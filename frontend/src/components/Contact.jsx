@@ -11,11 +11,13 @@ import {
   SelectValue,
 } from './ui/select';
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
-import { brand, trailers } from '../mock';
+import { brand, trailers as fallbackTrailers } from '../mock';
 import { useToast } from '../hooks/use-toast';
+import { createBooking, getTrailers } from '../lib/api';
 
 export default function Contact({ selectedTrailer, onClear }) {
   const { toast } = useToast();
+  const [trailers, setTrailers] = useState(fallbackTrailers);
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -26,6 +28,13 @@ export default function Contact({ selectedTrailer, onClear }) {
     message: '',
   });
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    getTrailers()
+      .then((data) => Array.isArray(data) && data.length && setTrailers(data))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (selectedTrailer) {
@@ -35,7 +44,7 @@ export default function Contact({ selectedTrailer, onClear }) {
 
   const update = (k, v) => setForm({ ...form, [k]: v });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.phone) {
       toast({
@@ -44,22 +53,27 @@ export default function Contact({ selectedTrailer, onClear }) {
       });
       return;
     }
-    // save to localStorage (mock)
-    const bookings = JSON.parse(localStorage.getItem('nwh_bookings') || '[]');
-    bookings.push({ ...form, at: new Date().toISOString() });
-    localStorage.setItem('nwh_bookings', JSON.stringify(bookings));
-    setSent(true);
-    toast({
-      title: 'Reservation request sent!',
-      description: 'Jason will call or text you shortly to confirm.',
-    });
-    setTimeout(() => {
-      setSent(false);
-      setForm({
-        name: '', email: '', phone: '', trailer: '', pickup: '', duration: '24 Hours', message: '',
+    try {
+      setSubmitting(true);
+      await createBooking(form);
+      setSent(true);
+      toast({
+        title: 'Reservation request sent!',
+        description: 'Jason will call or text you shortly to confirm.',
       });
-      onClear && onClear();
-    }, 4000);
+      setTimeout(() => {
+        setSent(false);
+        setForm({
+          name: '', email: '', phone: '', trailer: '', pickup: '', duration: '24 Hours', message: '',
+        });
+        onClear && onClear();
+      }, 4000);
+    } catch (err) {
+      const detail = err?.response?.data?.detail || 'Please try again or call directly.';
+      toast({ title: 'Could not send request', description: String(detail) });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -233,9 +247,10 @@ export default function Contact({ selectedTrailer, onClear }) {
 
                 <Button
                   type="submit"
-                  className="btn-glow w-full bg-amber-500 hover:bg-amber-400 text-[#132119] font-semibold h-13 py-4 rounded-md text-base"
+                  disabled={submitting}
+                  className="btn-glow w-full bg-amber-500 hover:bg-amber-400 text-[#132119] font-semibold h-13 py-4 rounded-md text-base disabled:opacity-70"
                 >
-                  Send Reservation Request
+                  {submitting ? 'Sending...' : 'Send Reservation Request'}
                   <Send className="w-4 h-4 ml-2" />
                 </Button>
                 <p className="text-xs text-white/50 text-center">

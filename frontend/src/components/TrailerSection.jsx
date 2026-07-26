@@ -1,14 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Check, ArrowRight, Weight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { trailers, categories } from '../mock';
+import { trailers as fallbackTrailers, categories } from '../mock';
+import { getTrailers } from '../lib/api';
 
 export default function TrailerSection({ onBook }) {
   const [active, setActive] = useState('All');
+  const [trailers, setTrailers] = useState(fallbackTrailers);
+
+  useEffect(() => {
+    getTrailers()
+      .then((data) => Array.isArray(data) && data.length && setTrailers(data))
+      .catch(() => {});
+  }, []);
+
   const filtered = useMemo(
     () => (active === 'All' ? trailers : trailers.filter((t) => t.category === active)),
-    [active]
+    [active, trailers]
   );
 
   return (
