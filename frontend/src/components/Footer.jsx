@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from 'lucide-react';
 import { brand, nav } from '../mock';
+import Logo from './Logo';
 
 export default function Footer() {
   return (
@@ -8,15 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 rounded-md bg-amber-500 flex items-center justify-center font-display text-[#0d1210] text-2xl leading-none">
-                NW
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="font-display text-2xl text-white tracking-wide">Northwest Haul</span>
-                <span className="text-[10px] uppercase tracking-[0.25em] text-amber-500">Rentals</span>
-              </div>
-            </div>
+            <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" showLLC />
             <p className="mt-5 text-white/60 max-w-md leading-relaxed">
               Locally owned trailer rentals serving Vancouver, WA and the greater
               Pacific Northwest. Fair prices, clean gear, and a real human on the phone.

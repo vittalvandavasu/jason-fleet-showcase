@@ -16,8 +16,8 @@ export const brand = {
 export const nav = [
   { label: 'Home', href: '#home' },
   { label: 'Trailers', href: '#trailers' },
+  { label: 'Gallery', href: '#gallery' },
   { label: 'How It Works', href: '#how' },
-  { label: 'Requirements', href: '#requirements' },
   { label: 'Reviews', href: '#reviews' },
   { label: 'FAQ', href: '#faq' },
   { label: 'Contact', href: '#contact' },
@@ -97,7 +97,7 @@ export const trailers = [
     id: 'enclosed-20',
     name: 'Enclosed Cargo 20\' + 2\' Nose',
     category: 'Cargo',
-    image: 'https://images.unsplash.com/photo-1520101244246-293f77ffc39e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHw0fHx0cmFpbGVyJTIwcmVudGFsfGVufDB8fHx8MTc4NTEwNzEzN3ww&ixlib=rb-4.1.0&q=85',
+    image: 'https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/wcgnabxf_087b66f8-3396-4591-90d1-05f9abf33926.jfif',
     gvwr: '9,999 lbs',
     features: ['E-track walls & floor', 'Dollies + moving blankets', '12k lb winch', 'Weather-proof interior'],
     pricing: {

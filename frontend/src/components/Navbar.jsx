@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Phone } from 'lucide-react';
 import { brand, nav } from '../mock';
 import { Button } from './ui/button';
+import Logo from './Logo';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -21,13 +22,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
         <a href="#home" className="flex items-center gap-3 group">
-          <div className="h-10 w-10 rounded-md bg-amber-500 flex items-center justify-center font-display text-[#0d1210] text-2xl leading-none">
-            NW
-          </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-2xl text-white tracking-wide">Northwest Haul</span>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-amber-500">Rentals</span>
-          </div>
+          <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" />
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">
