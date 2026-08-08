@@ -30,6 +30,14 @@ export default function Requirements() {
             >
               <a href="#contact">Reserve Your Trailer</a>
             </Button>
+            <div className="mt-4">
+              <a
+                href="/rental-agreement"
+                className="inline-flex items-center gap-1.5 text-sm text-[#132119] hover:text-amber-600 font-medium underline underline-offset-4 decoration-[#132119]/30 hover:decoration-amber-600"
+              >
+                Read the full rental agreement &rarr;
+              </a>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

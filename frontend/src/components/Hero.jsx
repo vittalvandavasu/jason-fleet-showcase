@@ -24,7 +24,7 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75" />
             </span>
             <span className="text-xs font-medium tracking-wider text-white/90 uppercase">
-              Same-Day Rentals · Vancouver, WA
+              Same-Day Rentals · Olympia, WA
             </span>
           </div>
 

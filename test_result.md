@@ -122,6 +122,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - Returns 200 with list of 9 trailers. All required fields present (id, name, category, pricing, features, gvwr, image). Pricing structure validated (hourly/weekday/weekend/weekly/monthly)."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - Updated to 4 new trailers (maxxd-c4x-7k, continental-cargo, olympic-utility, eagle-landscape). All trailers have complete structure: manufacturer, gvwr, gawr, axles, deck, payload, bestFor, features, pricing (hourly/weekday/weekend/weekly/monthly), category. Old trailer 'car-hauler-20' no longer in list."
 
   - task: "POST /api/bookings creates booking"
     implemented: true
@@ -139,6 +142,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - All validation tests passed: (1) Valid payload returns 200 with booking id, status=pending, created_at. (2) Missing name/email/phone returns 422. (3) Invalid email returns 422. (4) Unknown trailer id returns 400 with 'Unknown trailer id'. (5) Empty trailer allowed, returns 200. Data persists correctly in MongoDB."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - (1) New trailer 'maxxd-c4x-7k' booking returns 200 with status=pending. (2) Old trailer 'car-hauler-20' correctly rejected with 400 'Unknown trailer id'. (3) Empty trailer still allowed, returns 200. Trailer validation working correctly after inventory update."
 
   - task: "Admin auth via X-Admin-Token header"
     implemented: true
@@ -171,6 +177,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - Returns 200 with list of bookings. Verified sorting by created_at descending. All test bookings present in response. No _id field exposed."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - Returns 200 with X-Admin-Token header. All test bookings retrieved correctly."
 
   - task: "PATCH /api/admin/bookings/{id} updates status"
     implemented: true
@@ -186,6 +195,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - (1) Valid status update (confirmed) returns 200 with updated doc. (2) Invalid status (banana) returns 400. (3) Nonexistent booking id returns 404. Status validation working correctly."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - Status update to 'confirmed' returns 200 with X-Admin-Token header."
 
   - task: "DELETE /api/admin/bookings/{id}"
     implemented: true
@@ -201,6 +213,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - (1) Valid booking id returns 200 with {ok: true} and booking is deleted (verified via GET). (2) Nonexistent id returns 404."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - DELETE returns 200 with X-Admin-Token header. Booking successfully deleted and verified."
 
   - task: "GET /api/admin/stats"
     implemented: true
@@ -216,6 +231,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "✅ PASSED - Returns 200 with all required fields: total, pending, confirmed, completed, rejected, week_count. All values are integers. Total count matches expected bookings."
+        - working: true
+          agent: "testing"
+          comment: "✅ REGRESSION TEST PASSED - Returns 200 with X-Admin-Token header. All required fields present (total, pending, confirmed, completed, rejected, week_count)."
 
 frontend:
   - task: "Landing page + admin dashboard"
@@ -233,7 +251,7 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 2
+  test_sequence: 3
   run_ui: false
 
 test_plan:
@@ -288,3 +306,31 @@ agent_communication:
         
         All data persistence verified in MongoDB. Backend logs clean with no errors.
         Backend API is production-ready.
+    - agent: "testing"
+      message: |
+        ✅ REGRESSION TEST PASSED (10/10 - 100% success rate)
+        
+        Trailer inventory updated from 9 to 4 trailers. All backend functionality verified:
+        
+        TRAILER INVENTORY (2 tests):
+        ✅ GET /api/trailers - Returns exactly 4 trailers with new IDs:
+           • maxxd-c4x-7k (MAXX-D C4X 7K Car Hauler)
+           • continental-cargo (Continental Enclosed Cargo)
+           • olympic-utility (Olympic Open Utility)
+           • eagle-landscape (Eagle Landscape Trailer)
+        ✅ All trailers have complete structure: manufacturer, gvwr, gawr, axles, deck, 
+           payload, bestFor, features, pricing (hourly/weekday/weekend/weekly/monthly)
+        
+        BOOKING VALIDATION (3 tests):
+        ✅ POST /api/bookings with new trailer 'maxxd-c4x-7k' → 200 (status=pending)
+        ✅ POST /api/bookings with old trailer 'car-hauler-20' → 400 "Unknown trailer id"
+        ✅ POST /api/bookings with empty trailer "" → 200 (still allowed)
+        
+        ADMIN ENDPOINTS (5 tests):
+        ✅ GET /api/admin/bookings with X-Admin-Token → 200
+        ✅ GET /api/admin/stats with X-Admin-Token → 200
+        ✅ PATCH /api/admin/bookings/{id} with X-Admin-Token → 200
+        ✅ DELETE /api/admin/bookings/{id} with X-Admin-Token → 200
+        ✅ Cleanup: All test bookings deleted successfully
+        
+        Backend API fully functional after trailer inventory update. No issues found.

@@ -127,9 +127,9 @@ export default function Contact({ selectedTrailer, onClear }) {
                   <MapPin className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-widest text-amber-500 font-semibold">Location</div>
-                  <div className="text-white font-semibold">{brand.city}</div>
-                  <div className="text-white/50 text-sm">Serving the Pacific Northwest</div>
+                  <div className="text-xs uppercase tracking-widest text-amber-500 font-semibold">Pickup Location</div>
+                  <div className="text-white font-semibold">{brand.street}</div>
+                  <div className="text-white/70 text-sm">{brand.cityLine}</div>
                 </div>
               </div>
 

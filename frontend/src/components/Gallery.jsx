@@ -40,7 +40,7 @@ export default function Gallery() {
             </h2>
           </div>
           <p className="text-white/70 max-w-md text-base leading-relaxed">
-            Not stock photos. These are the trailers you'll pick up in Vancouver, WA —
+            Not stock photos. These are the trailers you'll pick up in Olympia, WA —
             clean, branded, and ready to work.
           </p>
         </div>

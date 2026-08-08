@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Check, ArrowRight, Weight } from 'lucide-react';
+import { Check, ArrowRight, Weight, Ruler, Truck as TruckIcon, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { trailers as fallbackTrailers, categories } from '../mock';
@@ -29,13 +29,13 @@ export default function TrailerSection({ onBook }) {
               Our Fleet
             </div>
             <h2 className="font-display text-5xl sm:text-6xl lg:text-7xl text-white leading-none">
-              Featured Rental
+              Our Rental
               <br />
               <span className="text-amber-500">Trailers</span>
             </h2>
             <p className="mt-5 text-white/70 max-w-xl text-base leading-relaxed">
-              Every trailer comes ready to work — winches, straps, chains, and
-              accessories included. Pick the size that fits your job.
+              Four purpose-built trailers, each ready to work — winches, straps, chains,
+              and ramps included. Pick the one that fits your job.
             </p>
           </div>
 
@@ -56,7 +56,7 @@ export default function TrailerSection({ onBook }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filtered.map((t) => (
             <TrailerCard key={t.id} trailer={t} onBook={onBook} />
           ))}
@@ -67,9 +67,12 @@ export default function TrailerSection({ onBook }) {
 }
 
 function TrailerCard({ trailer, onBook }) {
+  const [expanded, setExpanded] = useState(false);
+  const featuresToShow = expanded ? trailer.features : trailer.features?.slice(0, 3);
+
   return (
     <div className="card-hover group relative bg-[#141a17] border border-white/10 rounded-xl overflow-hidden flex flex-col">
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#0d1210]">
+      <div className="relative aspect-[16/10] overflow-hidden bg-[#0d1210]">
         <img
           src={trailer.image}
           alt={trailer.name}
@@ -93,10 +96,51 @@ function TrailerCard({ trailer, onBook }) {
       </div>
 
       <div className="p-6 flex flex-col flex-1">
-        <h3 className="font-display text-2xl text-white leading-tight">{trailer.name}</h3>
+        {trailer.manufacturer && (
+          <div className="text-[11px] uppercase tracking-widest text-white/50 font-semibold">
+            {trailer.manufacturer}
+            {trailer.year ? ` · ${trailer.year}` : ''}
+          </div>
+        )}
+        <h3 className="font-display text-2xl text-white leading-tight mt-1">{trailer.name}</h3>
 
+        {/* spec chips */}
+        {(trailer.axles || trailer.deck || trailer.payload) && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {trailer.axles && (
+              <SpecChip icon={TruckIcon} label={trailer.axles} />
+            )}
+            {trailer.deck && (
+              <SpecChip icon={Layers} label={trailer.deck} />
+            )}
+            {trailer.payload && (
+              <SpecChip icon={Ruler} label={`Payload ${trailer.payload}`} />
+            )}
+          </div>
+        )}
+
+        {/* best for */}
+        {trailer.bestFor && trailer.bestFor.length > 0 && (
+          <div className="mt-4">
+            <div className="text-[10px] font-semibold text-amber-500 tracking-[0.2em] uppercase mb-2">
+              Best For
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {trailer.bestFor.map((b) => (
+                <span
+                  key={b}
+                  className="text-xs text-white/80 bg-white/5 border border-white/10 rounded-full px-2.5 py-1"
+                >
+                  {b}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* features */}
         <ul className="mt-4 space-y-2">
-          {trailer.features.slice(0, 3).map((f) => (
+          {featuresToShow?.map((f) => (
             <li key={f} className="flex items-start gap-2 text-sm text-white/70">
               <Check className="w-4 h-4 mt-0.5 text-amber-500 shrink-0" />
               <span>{f}</span>
@@ -104,11 +148,28 @@ function TrailerCard({ trailer, onBook }) {
           ))}
         </ul>
 
-        <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-2 gap-3">
+        {trailer.features && trailer.features.length > 3 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="mt-2 flex items-center gap-1 text-xs text-amber-500 hover:text-amber-400 font-medium"
+          >
+            {expanded ? (
+              <>
+                Show less <ChevronUp className="w-3.5 h-3.5" />
+              </>
+            ) : (
+              <>
+                +{trailer.features.length - 3} more features <ChevronDown className="w-3.5 h-3.5" />
+              </>
+            )}
+          </button>
+        )}
+
+        <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-4 gap-2">
           <PriceCell label="Hourly" value={`$${trailer.pricing.hourly}`} sub="/ hr" />
-          <PriceCell label="Mon–Thu" value={`$${trailer.pricing.weekday}`} sub="24 hrs" />
-          <PriceCell label="Fri–Sun" value={`$${trailer.pricing.weekend}`} sub="24 hrs" />
-          <PriceCell label="Weekly" value={`$${trailer.pricing.weekly}`} sub="7 days" highlight />
+          <PriceCell label="Mon–Thu" value={`$${trailer.pricing.weekday}`} sub="24 hr" />
+          <PriceCell label="Fri–Sun" value={`$${trailer.pricing.weekend}`} sub="24 hr" />
+          <PriceCell label="Weekly" value={`$${trailer.pricing.weekly}`} sub="7 day" highlight />
         </div>
 
         <Button
@@ -123,21 +184,30 @@ function TrailerCard({ trailer, onBook }) {
   );
 }
 
+function SpecChip({ icon: Icon, label }) {
+  return (
+    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
+      <Icon className="w-3 h-3 text-amber-500" />
+      <span className="text-[11px] text-white/80">{label}</span>
+    </div>
+  );
+}
+
 function PriceCell({ label, value, sub, highlight = false }) {
   return (
     <div
-      className={`rounded-md px-3 py-2.5 ${
+      className={`rounded-md px-2 py-2 ${
         highlight ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-white/5 border border-white/10'
       }`}
     >
-      <div className="text-[10px] font-semibold tracking-[0.15em] text-white/50 uppercase">
+      <div className="text-[9px] font-semibold tracking-[0.12em] text-white/50 uppercase">
         {label}
       </div>
       <div className="flex items-baseline gap-1 mt-0.5">
-        <span className={`font-display text-2xl ${highlight ? 'text-amber-500' : 'text-white'}`}>
+        <span className={`font-display text-xl ${highlight ? 'text-amber-500' : 'text-white'}`}>
           {value}
         </span>
-        <span className="text-[10px] text-white/50">{sub}</span>
+        <span className="text-[9px] text-white/50">{sub}</span>
       </div>
     </div>
   );

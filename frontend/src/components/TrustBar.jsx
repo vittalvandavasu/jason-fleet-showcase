@@ -7,7 +7,7 @@ const items = [
   { icon: Clock, text: 'Same-Day Pickup' },
   { icon: DollarSign, text: 'No Hidden Fees' },
   { icon: ShieldCheck, text: 'Winch + Straps Included' },
-  { icon: Truck, text: 'Local Vancouver, WA' },
+  { icon: Truck, text: 'Local Olympia, WA' },
 ];
 
 export default function TrustBar() {
