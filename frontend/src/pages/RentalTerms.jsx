@@ -58,7 +58,7 @@ export default function RentalTerms() {
           >
             <ArrowLeft className="w-4 h-4" /> <span className="text-sm">Back to home</span>
           </button>
-          <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" />
+          <Logo variant="horizontal" color="white" height="48px" />
           <Button
             asChild
             className="bg-amber-500 hover:bg-amber-400 text-[#0d1210] font-semibold h-9 rounded-md"

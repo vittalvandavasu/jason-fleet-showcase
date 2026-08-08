@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-5">
-            <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" showLLC />
+            <Logo variant="horizontal" color="white" height="90px" />
             <p className="mt-5 text-white/60 max-w-md leading-relaxed">
               Locally owned trailer rentals serving Olympia, WA and the greater
               Puget Sound & Pacific Northwest. Fair prices, clean gear, and a real human on the phone.

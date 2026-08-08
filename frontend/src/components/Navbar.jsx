@@ -20,9 +20,9 @@ export default function Navbar() {
         scrolled ? 'bg-[#0d1210]/90 backdrop-blur-md border-b border-white/10' : 'bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-20">
-        <a href="#home" className="flex items-center gap-3 group">
-          <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" />
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between h-24">
+        <a href="#home" className="flex items-center gap-3 group py-2">
+          <Logo variant="horizontal" color="white" height="72px" />
         </a>
 
         <nav className="hidden lg:flex items-center gap-8">

@@ -208,7 +208,7 @@ export default function Admin() {
       <header className="border-b border-white/10 bg-[#0d1210]/80 backdrop-blur sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Logo variant="horizontal" color="#ffffff" accent="#f59e0b" className="mr-2" />
+            <Logo variant="horizontal" color="white" height="52px" />
             <span className="hidden md:inline-block text-xs uppercase tracking-widest text-amber-500 border-l border-white/15 pl-3">
               Admin
             </span>

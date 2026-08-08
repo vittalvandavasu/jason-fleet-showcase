@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Check, ArrowRight, Weight, Ruler, Truck as TruckIcon, Layers, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ArrowRight, Weight, Ruler, Truck as TruckIcon, Layers, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { trailers as fallbackTrailers, categories } from '../mock';
@@ -68,15 +68,26 @@ export default function TrailerSection({ onBook }) {
 
 function TrailerCard({ trailer, onBook }) {
   const [expanded, setExpanded] = useState(false);
+  const [imgIdx, setImgIdx] = useState(0);
+  const gallery = trailer.gallery && trailer.gallery.length > 0 ? trailer.gallery : [trailer.image];
   const featuresToShow = expanded ? trailer.features : trailer.features?.slice(0, 3);
+
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === 0 ? gallery.length - 1 : i - 1));
+  };
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setImgIdx((i) => (i === gallery.length - 1 ? 0 : i + 1));
+  };
 
   return (
     <div className="card-hover group relative bg-[#141a17] border border-white/10 rounded-xl overflow-hidden flex flex-col">
       <div className="relative aspect-[16/10] overflow-hidden bg-[#0d1210]">
         <img
-          src={trailer.image}
+          src={gallery[imgIdx]}
           alt={trailer.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          className="w-full h-full object-cover transition-all duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d1210] via-transparent to-transparent" />
         {trailer.tag && (
@@ -93,6 +104,41 @@ function TrailerCard({ trailer, onBook }) {
             {trailer.category}
           </div>
         </div>
+
+        {/* Image carousel controls */}
+        {gallery.length > 1 && (
+          <>
+            <button
+              onClick={prevImg}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-amber-500 hover:text-[#0d1210] text-white backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={nextImg}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-amber-500 hover:text-[#0d1210] text-white backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-4 right-4 flex gap-1.5">
+              {gallery.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImgIdx(i);
+                  }}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === imgIdx ? 'w-6 bg-amber-500' : 'w-1.5 bg-white/50 hover:bg-white'
+                  }`}
+                  aria-label={`Photo ${i + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="p-6 flex flex-col flex-1">
