@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Admin from './pages/Admin';
 import RentalTerms from './pages/RentalTerms';
+import TrailerDetail from './pages/TrailerDetail';
 import { Toaster } from './components/ui/toaster';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/rental-agreement" element={<RentalTerms />} />
+          <Route path="/trailers/:id" element={<TrailerDetail />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

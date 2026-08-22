@@ -235,6 +235,66 @@ backend:
           agent: "testing"
           comment: "✅ REGRESSION TEST PASSED - Returns 200 with X-Admin-Token header. All required fields present (total, pending, confirmed, completed, rejected, week_count)."
 
+  - task: "GET /api/trailers/{id} returns single trailer detail"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ PASSED - (1) GET /api/trailers/maxxd-c4x-7k returns 200 with complete trailer object including image, gallery (5 items), manufacturer, pricing, features, bestFor. (2) GET /api/trailers/does-not-exist returns 404 with 'not found' detail."
+
+  - task: "GET /api/trailers/{id}/booked-dates returns booked date ranges"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ PASSED - (1) GET /api/trailers/maxxd-c4x-7k/booked-dates returns 200 with {trailer, ranges: [...]} structure. (2) GET /api/trailers/does-not-exist/booked-dates returns 404. Ranges include start, end, and status fields."
+
+  - task: "POST /api/bookings with date range and overlap detection"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ PASSED - (1) Create booking with pickup=2027-01-10, end_date=2027-01-15 returns 200 with both dates stored. (2) Overlapping booking (2027-01-12 to 2027-01-14) correctly returns 409 with 'already booked' detail. (3) End date before start (2027-01-20 to 2027-01-18) returns 400. (4) Different trailer (eagle-landscape) on same dates returns 200. (5) Booked-dates endpoint correctly reflects the new booking range."
+
+  - task: "Backward compatibility - bookings without end_date"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ PASSED - (1) POST /api/bookings without end_date (only pickup) returns 200, end_date stored as empty string. (2) GET /api/admin/bookings returns all bookings including new ones with end_date field (empty string for old-style bookings)."
+
+  - task: "Admin flow with date ranges (PATCH/DELETE affect booked-dates)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ PASSED - (1) PATCH /api/admin/bookings/{id} with status=confirmed returns 200. (2) After confirmation, booked-dates still lists the range with status=confirmed. (3) DELETE /api/admin/bookings/{id} returns 200. (4) After deletion, booked-dates no longer lists that range. Admin operations correctly update availability calendar."
+
 frontend:
   - task: "Landing page + admin dashboard"
     implemented: true
@@ -251,18 +311,16 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: false
 
 test_plan:
   current_focus:
-    - "GET /api/trailers returns fleet list"
-    - "POST /api/bookings creates booking"
-    - "Admin auth via X-Admin-Token header"
-    - "GET /api/admin/bookings lists all bookings"
-    - "PATCH /api/admin/bookings/{id} updates status"
-    - "DELETE /api/admin/bookings/{id}"
-    - "GET /api/admin/stats"
+    - "GET /api/trailers/{id} returns single trailer detail"
+    - "GET /api/trailers/{id}/booked-dates returns booked date ranges"
+    - "POST /api/bookings with date range and overlap detection"
+    - "Backward compatibility - bookings without end_date"
+    - "Admin flow with date ranges (PATCH/DELETE affect booked-dates)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -334,3 +392,46 @@ agent_communication:
         ✅ Cleanup: All test bookings deleted successfully
         
         Backend API fully functional after trailer inventory update. No issues found.
+    - agent: "testing"
+      message: |
+        ✅ ALL NEW ENDPOINT TESTS PASSED (16/16 - 100% success rate)
+        
+        Comprehensive testing completed on new backend endpoints for date range bookings:
+        
+        SINGLE TRAILER DETAIL (2 tests):
+        ✅ GET /api/trailers/maxxd-c4x-7k - Returns 200 with complete object (image, gallery with 5 items, manufacturer, pricing, features, bestFor)
+        ✅ GET /api/trailers/does-not-exist - Returns 404
+        
+        BOOKED DATES ENDPOINT (2 tests):
+        ✅ GET /api/trailers/maxxd-c4x-7k/booked-dates - Returns 200 with {trailer, ranges: [...]} structure
+        ✅ GET /api/trailers/does-not-exist/booked-dates - Returns 404
+        
+        DATE RANGE BOOKINGS (5 tests):
+        ✅ POST /api/bookings with pickup=2027-01-10, end_date=2027-01-15 - Returns 200
+        ✅ POST /api/bookings with overlapping dates (2027-01-12 to 2027-01-14) - Returns 409 "already booked"
+        ✅ POST /api/bookings with end before start (2027-01-20 to 2027-01-18) - Returns 400
+        ✅ POST /api/bookings with different trailer (eagle-landscape) on same dates - Returns 200
+        ✅ GET /api/trailers/maxxd-c4x-7k/booked-dates - Correctly includes range 2027-01-10 to 2027-01-15
+        
+        BACKWARD COMPATIBILITY (2 tests):
+        ✅ POST /api/bookings without end_date (only pickup) - Returns 200, end_date stored as empty string
+        ✅ GET /api/admin/bookings - Returns all bookings with end_date field (including empty strings)
+        
+        ADMIN FLOW WITH DATE RANGES (5 tests):
+        ✅ PATCH /api/admin/bookings/{id} with status=confirmed - Returns 200
+        ✅ After confirmation, booked-dates still lists the range with status=confirmed
+        ✅ DELETE /api/admin/bookings/{id} - Returns 200
+        ✅ After deletion, booked-dates no longer lists that range
+        ✅ Cleanup: All test bookings deleted successfully
+        
+        All new features working correctly:
+        • Single trailer detail endpoint with complete data structure
+        • Booked-dates endpoint for calendar availability
+        • Date range bookings with pickup and end_date
+        • Overlap detection returns 409 conflict
+        • Date validation (end before start returns 400)
+        • Different trailers can be booked on same dates
+        • Backward compatibility maintained (bookings without end_date still work)
+        • Admin operations (confirm/delete) correctly update booked-dates
+        
+        Backend logs clean with no errors. All endpoints production-ready.

@@ -3,8 +3,8 @@ import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PHOTOS = [
   {
-    src: '/trailers/maxxd-c4x-main.jpg',
-    caption: 'MAXX-D C4X — car hauler ready to load',
+    src: '/trailers/ai/maxxd-c4x-7k.jpg',
+    caption: 'MAXX-D C4X — car hauler in daylight',
     tag: 'Car Hauler',
   },
   {
@@ -13,14 +13,14 @@ const PHOTOS = [
     tag: 'Cargo',
   },
   {
-    src: '/trailers/maxxd-c4x-wood.jpg',
-    caption: 'MAXX-D — fresh wood deck, ramps up',
-    tag: 'Car Hauler',
+    src: '/trailers/ai/eagle-landscape.jpg',
+    caption: 'Eagle Landscape — mesh-side hauler',
+    tag: 'Landscape',
   },
   {
-    src: '/trailers/eagle-falcon.jpg',
-    caption: 'Eagle Falcon — utility with sides',
-    tag: 'Landscape',
+    src: '/trailers/maxxd-c4x-main.jpg',
+    caption: 'MAXX-D C4X — ready to load',
+    tag: 'Car Hauler',
   },
   {
     src: 'https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/8fwkwmf2_6559fc41-858d-46b3-9e4f-15c308c15c53.jfif',
@@ -28,8 +28,8 @@ const PHOTOS = [
     tag: 'Cargo',
   },
   {
-    src: '/trailers/olympian.jpg',
-    caption: 'Olympian utility — heavy-duty daily hauler',
+    src: '/trailers/ai/olympic-utility.jpg',
+    caption: 'Olympic Utility — open box hauler',
     tag: 'Utility',
   },
   {
@@ -53,12 +53,12 @@ const PHOTOS = [
     tag: 'Cargo',
   },
   {
-    src: '/trailers/maxxd-c6x.jpg',
-    caption: 'MAXX-D C6X — heavier-duty spec',
+    src: '/trailers/maxxd-c4x-wood.jpg',
+    caption: 'MAXX-D — fresh wood deck',
     tag: 'Car Hauler',
   },
   {
-    src: '/trailers/utility-mesh-back.jpg',
+    src: '/trailers/eagle-falcon.jpg',
     caption: 'Landscape utility — mesh gate lowered',
     tag: 'Landscape',
   },

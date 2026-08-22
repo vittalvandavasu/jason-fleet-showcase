@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Check, ArrowRight, Weight, Ruler, Truck as TruckIcon, Layers, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Check, ArrowRight, Weight, Ruler, Truck as TruckIcon, Layers, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { trailers as fallbackTrailers, categories } from '../mock';
@@ -225,6 +226,13 @@ function TrailerCard({ trailer, onBook }) {
           Book This Trailer
           <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />
         </Button>
+        <Link
+          to={`/trailers/${trailer.id}`}
+          className="mt-3 flex items-center justify-center gap-1.5 text-sm text-amber-500 hover:text-amber-400 font-medium"
+        >
+          View full specs & availability
+          <ExternalLink className="w-3.5 h-3.5" />
+        </Link>
       </div>
     </div>
   );

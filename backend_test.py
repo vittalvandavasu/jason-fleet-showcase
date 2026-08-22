@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Regression test for Northwest Haul Rentals backend after trailer inventory update
-Tests the 4 new trailers: maxxd-c4x-7k, continental-cargo, olympic-utility, eagle-landscape
+Test suite for Northwest Haul Rentals backend - NEW ENDPOINTS
+Tests single trailer detail, booked-dates, date range bookings, and overlap detection
 """
 
 import requests
@@ -48,71 +48,95 @@ def test(name, func):
 created_booking_ids = []
 
 # ============================================================================
-# REGRESSION TEST: NEW TRAILER INVENTORY
+# TEST 1: GET /api/trailers/{id} - Single Trailer Detail
 # ============================================================================
 
-print("\n🚛 TRAILER INVENTORY REGRESSION TEST")
+print("\n🚛 TEST 1: GET /api/trailers/{id} - Single Trailer Detail")
 print("-" * 80)
 
-def test_trailers_count_and_ids():
-    """GET /api/trailers should return exactly 4 trailers with new IDs"""
-    resp = requests.get(f"{BASE_URL}/api/trailers")
+def test_get_single_trailer_success():
+    """GET /api/trailers/maxxd-c4x-7k should return 200 with complete trailer object"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/maxxd-c4x-7k")
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
     data = resp.json()
-    assert isinstance(data, list), "Response should be a list"
-    assert len(data) == 4, f"Expected exactly 4 trailers, got {len(data)}"
     
-    # Check for the 4 new trailer IDs
-    expected_ids = {"maxxd-c4x-7k", "continental-cargo", "olympic-utility", "eagle-landscape"}
-    actual_ids = {t["id"] for t in data}
-    assert actual_ids == expected_ids, f"Expected IDs {expected_ids}, got {actual_ids}"
+    # Verify required fields
+    assert data["id"] == "maxxd-c4x-7k", f"Expected id 'maxxd-c4x-7k', got {data.get('id')}"
+    assert "image" in data, "Missing 'image' field"
+    assert "gallery" in data, "Missing 'gallery' field"
+    assert isinstance(data["gallery"], list), "Gallery should be a list"
+    assert len(data["gallery"]) >= 1, f"Gallery should have at least 1 item, got {len(data['gallery'])}"
+    assert "manufacturer" in data, "Missing 'manufacturer' field"
+    assert "pricing" in data, "Missing 'pricing' field"
+    assert "features" in data, "Missing 'features' field"
+    assert "bestFor" in data, "Missing 'bestFor' field"
     
-    print(f"   ✓ Found all 4 new trailers: {', '.join(sorted(actual_ids))}")
+    print(f"   ✓ Trailer 'maxxd-c4x-7k' returned with all required fields")
+    print(f"   ✓ Gallery has {len(data['gallery'])} images")
 
-test("GET /api/trailers returns exactly 4 trailers with correct IDs", test_trailers_count_and_ids)
+test("GET /api/trailers/maxxd-c4x-7k returns 200 with complete object", test_get_single_trailer_success)
 
-def test_trailer_structure():
-    """Each trailer should have all required fields"""
-    resp = requests.get(f"{BASE_URL}/api/trailers")
+def test_get_single_trailer_not_found():
+    """GET /api/trailers/does-not-exist should return 404"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/does-not-exist")
+    assert resp.status_code == 404, f"Expected 404, got {resp.status_code}"
     data = resp.json()
-    
-    required_fields = [
-        "id", "name", "manufacturer", "category", "gvwr", "gawr", "axles", 
-        "deck", "payload", "bestFor", "features", "pricing"
-    ]
-    pricing_fields = ["hourly", "weekday", "weekend", "weekly", "monthly"]
-    
-    for trailer in data:
-        trailer_id = trailer.get("id", "unknown")
-        for field in required_fields:
-            assert field in trailer, f"Trailer {trailer_id} missing field: {field}"
-        
-        # Check pricing structure
-        pricing = trailer["pricing"]
-        for field in pricing_fields:
-            assert field in pricing, f"Trailer {trailer_id} pricing missing: {field}"
-    
-    print(f"   ✓ All trailers have required fields: manufacturer, gvwr, gawr, axles, deck, payload, bestFor, features, pricing")
+    assert "not found" in data.get("detail", "").lower(), f"Expected 'not found' error, got: {data}"
+    print(f"   ✓ Non-existent trailer correctly returns 404")
 
-test("All trailers have complete structure with required fields", test_trailer_structure)
+test("GET /api/trailers/does-not-exist returns 404", test_get_single_trailer_not_found)
 
 # ============================================================================
-# BOOKING TESTS WITH NEW TRAILER IDS
+# TEST 2: GET /api/trailers/{id}/booked-dates
 # ============================================================================
 
-print("\n📝 BOOKING TESTS")
+print("\n📅 TEST 2: GET /api/trailers/{id}/booked-dates")
 print("-" * 80)
 
-def test_booking_with_new_trailer():
-    """POST /api/bookings with new trailer 'maxxd-c4x-7k' should succeed"""
+def test_get_booked_dates_success():
+    """GET /api/trailers/maxxd-c4x-7k/booked-dates should return 200 with structure"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/maxxd-c4x-7k/booked-dates")
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+    data = resp.json()
+    
+    assert "trailer" in data, "Missing 'trailer' field"
+    assert data["trailer"] == "maxxd-c4x-7k", f"Expected trailer 'maxxd-c4x-7k', got {data['trailer']}"
+    assert "ranges" in data, "Missing 'ranges' field"
+    assert isinstance(data["ranges"], list), "Ranges should be a list"
+    
+    print(f"   ✓ Booked-dates endpoint returns correct structure")
+    print(f"   ✓ Currently {len(data['ranges'])} booked ranges for maxxd-c4x-7k")
+
+test("GET /api/trailers/maxxd-c4x-7k/booked-dates returns 200", test_get_booked_dates_success)
+
+def test_get_booked_dates_not_found():
+    """GET /api/trailers/does-not-exist/booked-dates should return 404"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/does-not-exist/booked-dates")
+    assert resp.status_code == 404, f"Expected 404, got {resp.status_code}"
+    data = resp.json()
+    assert "not found" in data.get("detail", "").lower(), f"Expected 'not found' error, got: {data}"
+    print(f"   ✓ Non-existent trailer correctly returns 404")
+
+test("GET /api/trailers/does-not-exist/booked-dates returns 404", test_get_booked_dates_not_found)
+
+# ============================================================================
+# TEST 3: POST /api/bookings with Date Range
+# ============================================================================
+
+print("\n📝 TEST 3: POST /api/bookings with Date Range")
+print("-" * 80)
+
+def test_create_booking_with_date_range():
+    """Create booking with trailer=maxxd-c4x-7k, pickup=2027-01-10, end_date=2027-01-15"""
     payload = {
-        "name": "Michael Rodriguez",
-        "email": "michael.rodriguez@example.com",
-        "phone": "(206) 555-0123",
+        "name": "James Wilson",
+        "email": "james.wilson@example.com",
+        "phone": "(206) 555-0100",
         "trailer": "maxxd-c4x-7k",
-        "pickup": "2026-08-15",
-        "duration": "Weekend",
-        "message": "Need to haul a car to Seattle"
+        "pickup": "2027-01-10",
+        "end_date": "2027-01-15",
+        "duration": "5 Days",
+        "message": "Need car hauler for a week"
     }
     resp = requests.post(f"{BASE_URL}/api/bookings", json=payload)
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
@@ -121,96 +145,160 @@ def test_booking_with_new_trailer():
     assert "id" in data, "Response should contain booking id"
     assert data["status"] == "pending", f"Expected status 'pending', got {data['status']}"
     assert data["trailer"] == "maxxd-c4x-7k", "Trailer ID mismatch"
-    assert "created_at" in data, "Response should contain created_at"
+    assert data["pickup"] == "2027-01-10", f"Expected pickup '2027-01-10', got {data['pickup']}"
+    assert data["end_date"] == "2027-01-15", f"Expected end_date '2027-01-15', got {data['end_date']}"
     
     created_booking_ids.append(data["id"])
-    print(f"   ✓ Created booking {data['id']} with trailer maxxd-c4x-7k")
+    print(f"   ✓ Created booking {data['id']} for 2027-01-10 to 2027-01-15")
 
-test("POST /api/bookings with new trailer 'maxxd-c4x-7k' returns 200", test_booking_with_new_trailer)
+test("POST /api/bookings with date range (2027-01-10 to 2027-01-15) returns 200", test_create_booking_with_date_range)
 
-def test_booking_with_old_trailer():
-    """POST /api/bookings with old trailer 'car-hauler-20' should return 400"""
+def test_create_overlapping_booking():
+    """Create ANOTHER booking with overlapping dates (2027-01-12 to 2027-01-14) should return 409"""
     payload = {
-        "name": "Sarah Johnson",
-        "email": "sarah.johnson@example.com",
-        "phone": "(425) 555-0199",
-        "trailer": "car-hauler-20",
-        "pickup": "2026-08-20",
-        "duration": "24 Hours",
-        "message": "Trying to book old trailer"
+        "name": "Sarah Martinez",
+        "email": "sarah.martinez@example.com",
+        "phone": "(425) 555-0200",
+        "trailer": "maxxd-c4x-7k",
+        "pickup": "2027-01-12",
+        "end_date": "2027-01-14",
+        "duration": "3 Days",
+        "message": "Trying to book overlapping dates"
     }
     resp = requests.post(f"{BASE_URL}/api/bookings", json=payload)
-    assert resp.status_code == 400, f"Expected 400 for old trailer ID, got {resp.status_code}"
+    assert resp.status_code == 409, f"Expected 409 for overlapping dates, got {resp.status_code}: {resp.text}"
     data = resp.json()
-    assert "Unknown trailer id" in data.get("detail", ""), f"Expected 'Unknown trailer id' error, got: {data}"
-    print(f"   ✓ Old trailer 'car-hauler-20' correctly rejected with 400")
+    assert "already booked" in data.get("detail", "").lower(), f"Expected 'already booked' error, got: {data}"
+    print(f"   ✓ Overlapping booking correctly rejected with 409")
 
-test("POST /api/bookings with old trailer 'car-hauler-20' returns 400", test_booking_with_old_trailer)
+test("POST /api/bookings with overlapping dates (2027-01-12 to 2027-01-14) returns 409", test_create_overlapping_booking)
 
-def test_booking_with_empty_trailer():
-    """POST /api/bookings with empty trailer should still be allowed"""
+def test_create_booking_end_before_start():
+    """Create booking with end_date before pickup should return 400"""
     payload = {
-        "name": "Emily Chen",
-        "email": "emily.chen@example.com",
-        "phone": "(360) 555-0177",
-        "trailer": "",
-        "pickup": "2026-08-25",
-        "duration": "48 Hours",
-        "message": "General inquiry about rentals"
+        "name": "Michael Chen",
+        "email": "michael.chen@example.com",
+        "phone": "(360) 555-0300",
+        "trailer": "maxxd-c4x-7k",
+        "pickup": "2027-01-20",
+        "end_date": "2027-01-18",
+        "duration": "Invalid",
+        "message": "End date before start"
     }
     resp = requests.post(f"{BASE_URL}/api/bookings", json=payload)
-    assert resp.status_code == 200, f"Expected 200 for empty trailer, got {resp.status_code}: {resp.text}"
+    assert resp.status_code == 400, f"Expected 400 for end before start, got {resp.status_code}: {resp.text}"
     data = resp.json()
-    assert "id" in data, "Response should contain booking id"
-    assert data["trailer"] == "", "Trailer should be empty string"
+    assert "before" in data.get("detail", "").lower(), f"Expected 'before' error message, got: {data}"
+    print(f"   ✓ End date before start correctly rejected with 400")
+
+test("POST /api/bookings with end_date before pickup (2027-01-20 to 2027-01-18) returns 400", test_create_booking_end_before_start)
+
+def test_create_booking_different_trailer_same_dates():
+    """Create booking with different trailer (eagle-landscape) on same dates should succeed"""
+    payload = {
+        "name": "Emily Rodriguez",
+        "email": "emily.rodriguez@example.com",
+        "phone": "(253) 555-0400",
+        "trailer": "eagle-landscape",
+        "pickup": "2027-01-10",
+        "end_date": "2027-01-15",
+        "duration": "5 Days",
+        "message": "Different trailer, same dates"
+    }
+    resp = requests.post(f"{BASE_URL}/api/bookings", json=payload)
+    assert resp.status_code == 200, f"Expected 200 for different trailer, got {resp.status_code}: {resp.text}"
+    data = resp.json()
+    
+    assert data["trailer"] == "eagle-landscape", "Trailer ID mismatch"
+    assert data["pickup"] == "2027-01-10", "Pickup date mismatch"
+    assert data["end_date"] == "2027-01-15", "End date mismatch"
     
     created_booking_ids.append(data["id"])
-    print(f"   ✓ Empty trailer booking allowed, created {data['id']}")
+    print(f"   ✓ Different trailer booking on same dates succeeded: {data['id']}")
 
-test("POST /api/bookings with empty trailer returns 200", test_booking_with_empty_trailer)
+test("POST /api/bookings with different trailer (eagle-landscape) on same dates returns 200", test_create_booking_different_trailer_same_dates)
+
+def test_verify_booked_dates_includes_range():
+    """Verify GET /api/trailers/maxxd-c4x-7k/booked-dates now includes 2027-01-10 to 2027-01-15"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/maxxd-c4x-7k/booked-dates")
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+    data = resp.json()
+    
+    ranges = data.get("ranges", [])
+    found = False
+    for r in ranges:
+        if r.get("start") == "2027-01-10" and r.get("end") == "2027-01-15":
+            found = True
+            break
+    
+    assert found, f"Expected to find range 2027-01-10 to 2027-01-15 in booked-dates, got: {ranges}"
+    print(f"   ✓ Booked-dates correctly includes range 2027-01-10 to 2027-01-15")
+
+test("GET /api/trailers/maxxd-c4x-7k/booked-dates includes range 2027-01-10 to 2027-01-15", test_verify_booked_dates_includes_range)
 
 # ============================================================================
-# ADMIN ENDPOINTS
+# TEST 4: Backward Compatibility
 # ============================================================================
 
-print("\n🔐 ADMIN ENDPOINTS")
+print("\n🔄 TEST 4: Backward Compatibility")
 print("-" * 80)
 
-def test_admin_get_bookings():
-    """GET /api/admin/bookings with X-Admin-Token should work"""
+def test_booking_without_end_date():
+    """POST /api/bookings without end_date (only pickup) should return 200"""
+    payload = {
+        "name": "David Thompson",
+        "email": "david.thompson@example.com",
+        "phone": "(509) 555-0500",
+        "trailer": "continental-cargo",
+        "pickup": "2027-02-01",
+        "duration": "24 Hours",
+        "message": "Old-style booking without end_date"
+    }
+    resp = requests.post(f"{BASE_URL}/api/bookings", json=payload)
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
+    data = resp.json()
+    
+    assert "id" in data, "Response should contain booking id"
+    assert data["pickup"] == "2027-02-01", "Pickup date mismatch"
+    assert data["end_date"] == "", f"Expected empty end_date, got {data['end_date']}"
+    
+    created_booking_ids.append(data["id"])
+    print(f"   ✓ Booking without end_date succeeded: {data['id']}")
+
+test("POST /api/bookings without end_date (only pickup) returns 200", test_booking_without_end_date)
+
+def test_admin_get_bookings_includes_end_date():
+    """GET /api/admin/bookings should return all bookings including new ones with end_date field"""
     headers = {"X-Admin-Token": ADMIN_TOKEN}
     resp = requests.get(f"{BASE_URL}/api/admin/bookings", headers=headers)
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
     data = resp.json()
+    
     assert isinstance(data, list), "Response should be a list"
     
-    # Verify our created bookings are in the list
+    # Verify all bookings have end_date field (even if empty)
+    for booking in data:
+        assert "end_date" in booking, f"Booking {booking.get('id')} missing end_date field"
+    
+    # Verify our created bookings are present
     booking_ids = [b["id"] for b in data]
     for created_id in created_booking_ids:
         assert created_id in booking_ids, f"Created booking {created_id} not found"
     
+    print(f"   ✓ All bookings have end_date field (including empty strings)")
     print(f"   ✓ Retrieved {len(data)} bookings, including {len(created_booking_ids)} test bookings")
 
-test("GET /api/admin/bookings with X-Admin-Token returns 200", test_admin_get_bookings)
+test("GET /api/admin/bookings returns all bookings with end_date field", test_admin_get_bookings_includes_end_date)
 
-def test_admin_get_stats():
-    """GET /api/admin/stats with X-Admin-Token should work"""
-    headers = {"X-Admin-Token": ADMIN_TOKEN}
-    resp = requests.get(f"{BASE_URL}/api/admin/stats", headers=headers)
-    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
-    data = resp.json()
-    
-    required_fields = ["total", "pending", "confirmed", "completed", "rejected", "week_count"]
-    for field in required_fields:
-        assert field in data, f"Stats missing field: {field}"
-        assert isinstance(data[field], int), f"Field {field} should be integer"
-    
-    print(f"   ✓ Stats: {data['total']} total, {data['pending']} pending, {data['week_count']} this week")
+# ============================================================================
+# TEST 5: Admin Flow with Date Ranges
+# ============================================================================
 
-test("GET /api/admin/stats with X-Admin-Token returns 200", test_admin_get_stats)
+print("\n🔐 TEST 5: Admin Flow with Date Ranges")
+print("-" * 80)
 
-def test_admin_patch_booking():
-    """PATCH /api/admin/bookings/{id} with X-Admin-Token should work"""
+def test_admin_patch_booking_status():
+    """PATCH /api/admin/bookings/{id} with status=confirmed should return 200"""
     if not created_booking_ids:
         raise AssertionError("No bookings to test PATCH")
     
@@ -223,36 +311,67 @@ def test_admin_patch_booking():
     assert data["status"] == "confirmed", f"Expected status 'confirmed', got {data['status']}"
     print(f"   ✓ Updated booking {booking_id} status to 'confirmed'")
 
-test("PATCH /api/admin/bookings/{id} with X-Admin-Token returns 200", test_admin_patch_booking)
+test("PATCH /api/admin/bookings/{id} with status=confirmed returns 200", test_admin_patch_booking_status)
+
+def test_booked_dates_after_confirmation():
+    """After confirmation, booked-dates should still list the range"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/maxxd-c4x-7k/booked-dates")
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+    data = resp.json()
+    
+    ranges = data.get("ranges", [])
+    found = False
+    for r in ranges:
+        if r.get("start") == "2027-01-10" and r.get("end") == "2027-01-15":
+            found = True
+            assert r.get("status") == "confirmed", f"Expected status 'confirmed', got {r.get('status')}"
+            break
+    
+    assert found, f"Expected to find confirmed range 2027-01-10 to 2027-01-15, got: {ranges}"
+    print(f"   ✓ Booked-dates still includes confirmed range 2027-01-10 to 2027-01-15")
+
+test("After confirmation, booked-dates still lists the range with status=confirmed", test_booked_dates_after_confirmation)
 
 def test_admin_delete_booking():
-    """DELETE /api/admin/bookings/{id} with X-Admin-Token should work"""
+    """DELETE /api/admin/bookings/{id} should return 200"""
     if not created_booking_ids:
         raise AssertionError("No bookings to test DELETE")
     
-    booking_id = created_booking_ids[-1]
+    booking_id = created_booking_ids[0]
     headers = {"X-Admin-Token": ADMIN_TOKEN}
     resp = requests.delete(f"{BASE_URL}/api/admin/bookings/{booking_id}", headers=headers)
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}: {resp.text}"
     data = resp.json()
     assert data.get("ok") == True, f"Expected ok=true, got {data}"
     
-    # Verify deletion
-    resp = requests.get(f"{BASE_URL}/api/admin/bookings", headers=headers)
-    bookings = resp.json()
-    booking_ids = [b["id"] for b in bookings]
-    assert booking_id not in booking_ids, "Booking still exists after deletion"
-    
-    created_booking_ids.remove(booking_id)
     print(f"   ✓ Deleted booking {booking_id}")
+    created_booking_ids.remove(booking_id)
 
-test("DELETE /api/admin/bookings/{id} with X-Admin-Token returns 200", test_admin_delete_booking)
+test("DELETE /api/admin/bookings/{id} returns 200", test_admin_delete_booking)
+
+def test_booked_dates_after_deletion():
+    """After deletion, booked-dates should no longer list that range"""
+    resp = requests.get(f"{BASE_URL}/api/trailers/maxxd-c4x-7k/booked-dates")
+    assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
+    data = resp.json()
+    
+    ranges = data.get("ranges", [])
+    found = False
+    for r in ranges:
+        if r.get("start") == "2027-01-10" and r.get("end") == "2027-01-15":
+            found = True
+            break
+    
+    assert not found, f"Range 2027-01-10 to 2027-01-15 should be deleted, but still found in: {ranges}"
+    print(f"   ✓ Booked-dates no longer includes deleted range 2027-01-10 to 2027-01-15")
+
+test("After deletion, booked-dates no longer lists that range", test_booked_dates_after_deletion)
 
 # ============================================================================
-# CLEANUP
+# TEST 6: Cleanup
 # ============================================================================
 
-print("\n🧹 CLEANUP")
+print("\n🧹 TEST 6: Cleanup")
 print("-" * 80)
 
 def cleanup_test_bookings():
@@ -268,16 +387,16 @@ def cleanup_test_bookings():
         except Exception as e:
             print(f"   ⚠️  Failed to delete {booking_id}: {e}")
     
-    print(f"   ✓ Cleaned up {deleted_count} test bookings")
+    print(f"   ✓ Cleaned up {deleted_count} remaining test bookings")
 
-test("Cleanup: Delete all test bookings", cleanup_test_bookings)
+test("Cleanup: Delete all remaining test bookings", cleanup_test_bookings)
 
 # ============================================================================
 # SUMMARY
 # ============================================================================
 
 print("\n" + "=" * 80)
-print("📊 REGRESSION TEST SUMMARY")
+print("📊 TEST SUMMARY")
 print("=" * 80)
 print(f"✅ Passed: {passed}")
 print(f"❌ Failed: {failed}")
@@ -293,10 +412,15 @@ if failed > 0:
             if len(result) > 2:
                 print(f"    {result[2]}")
 else:
-    print("\n✅ ALL REGRESSION TESTS PASSED!")
-    print("   • 4 new trailers verified (maxxd-c4x-7k, continental-cargo, olympic-utility, eagle-landscape)")
-    print("   • Old trailer 'car-hauler-20' correctly rejected")
-    print("   • All admin endpoints working with X-Admin-Token")
+    print("\n✅ ALL TESTS PASSED!")
+    print("   • GET /api/trailers/{id} - Single trailer detail working")
+    print("   • GET /api/trailers/{id}/booked-dates - Booked dates endpoint working")
+    print("   • POST /api/bookings with date range - Date range bookings working")
+    print("   • Overlap detection - 409 conflict correctly returned")
+    print("   • Date validation - End before start correctly rejected")
+    print("   • Different trailers - Same dates allowed for different trailers")
+    print("   • Backward compatibility - Bookings without end_date still work")
+    print("   • Admin flow - Confirmation and deletion work with date ranges")
     print("   • Test bookings cleaned up")
 
 exit(0 if failed == 0 else 1)

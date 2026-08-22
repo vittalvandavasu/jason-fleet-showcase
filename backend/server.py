@@ -34,8 +34,9 @@ TRAILERS = [
         "year": "2022",
         "category": "Car Hauler",
         "tag": "Most Popular",
-        "image": "/trailers/maxxd-c4x-main.jpg",
+        "image": "/trailers/ai/maxxd-c4x-7k.jpg",
         "gallery": [
+            "/trailers/ai/maxxd-c4x-7k.jpg",
             "/trailers/maxxd-c4x-main.jpg",
             "/trailers/maxxd-c4x-wood.jpg",
             "/trailers/maxxd-c4x-grass.jpg",
@@ -65,8 +66,9 @@ TRAILERS = [
         "year": None,
         "category": "Cargo",
         "tag": "Best Value",
-        "image": "https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/wcgnabxf_087b66f8-3396-4591-90d1-05f9abf33926.jfif",
+        "image": "/trailers/ai/continental-cargo.jpg",
         "gallery": [
+            "/trailers/ai/continental-cargo.jpg",
             "https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/wcgnabxf_087b66f8-3396-4591-90d1-05f9abf33926.jfif",
             "https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/8fwkwmf2_6559fc41-858d-46b3-9e4f-15c308c15c53.jfif",
             "https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/0nen5l5j_7e89d5ab-6f28-4759-9f55-a36038a86e61.jfif",
@@ -96,8 +98,8 @@ TRAILERS = [
         "year": None,
         "category": "Utility",
         "tag": None,
-        "image": "/trailers/olympian.jpg",
-        "gallery": ["/trailers/olympian.jpg", "/trailers/utility-ramp.jpg"],
+        "image": "/trailers/ai/olympic-utility.jpg",
+        "gallery": ["/trailers/ai/olympic-utility.jpg", "/trailers/olympian.jpg", "/trailers/utility-ramp.jpg"],
         "gvwr": "2,990 lbs",
         "gawr": "3,500 lbs",
         "axles": "Single axle",
@@ -122,8 +124,8 @@ TRAILERS = [
         "year": None,
         "category": "Landscape",
         "tag": None,
-        "image": "/trailers/eagle-falcon.jpg",
-        "gallery": ["/trailers/eagle-falcon.jpg", "/trailers/utility-mesh-back.jpg"],
+        "image": "/trailers/ai/eagle-landscape.jpg",
+        "gallery": ["/trailers/ai/eagle-landscape.jpg", "/trailers/eagle-falcon.jpg", "/trailers/utility-mesh-back.jpg"],
         "gvwr": "2,990\u20133,500 lbs",
         "gawr": "3,500 lbs",
         "axles": "Single axle",
@@ -152,7 +154,8 @@ class BookingCreate(BaseModel):
     email: EmailStr
     phone: str = Field(min_length=3, max_length=40)
     trailer: Optional[str] = ""
-    pickup: Optional[str] = ""
+    pickup: Optional[str] = ""       # ISO date string (start)
+    end_date: Optional[str] = ""     # ISO date string (end/return)
     duration: Optional[str] = "24 Hours"
     message: Optional[str] = ""
 
@@ -164,6 +167,7 @@ class Booking(BaseModel):
     phone: str
     trailer: str
     pickup: str
+    end_date: str
     duration: str
     message: str
     status: str
@@ -172,6 +176,24 @@ class Booking(BaseModel):
 
 class StatusUpdate(BaseModel):
     status: str
+
+
+# ---------- Helpers ----------
+def _parse_iso_date(s: Optional[str]):
+    if not s:
+        return None
+    try:
+        # accept YYYY-MM-DD or full ISO
+        return datetime.fromisoformat(s.split("T")[0]).date()
+    except Exception:
+        return None
+
+
+def _ranges_overlap(a_start, a_end, b_start, b_end) -> bool:
+    """Inclusive overlap check."""
+    if not (a_start and a_end and b_start and b_end):
+        return False
+    return a_start <= b_end and b_start <= a_end
 
 
 # ---------- Auth ----------
@@ -192,11 +214,62 @@ async def get_trailers():
     return TRAILERS
 
 
+@api_router.get("/trailers/{trailer_id}")
+async def get_trailer(trailer_id: str):
+    for t in TRAILERS:
+        if t["id"] == trailer_id:
+            return t
+    raise HTTPException(status_code=404, detail="Trailer not found")
+
+
+@api_router.get("/trailers/{trailer_id}/booked-dates")
+async def get_booked_dates(trailer_id: str):
+    """Return active date ranges (pending + confirmed) for a trailer,
+    so the frontend can disable those days in the calendar."""
+    if trailer_id not in VALID_TRAILER_IDS:
+        raise HTTPException(status_code=404, detail="Trailer not found")
+
+    cursor = db.bookings.find(
+        {
+            "trailer": trailer_id,
+            "status": {"$in": ["pending", "confirmed"]},
+            "pickup": {"$ne": ""},
+        },
+        {"_id": 0, "pickup": 1, "end_date": 1, "status": 1},
+    )
+    ranges = []
+    async for doc in cursor:
+        start = doc.get("pickup", "")
+        end = doc.get("end_date", "") or start
+        if start:
+            ranges.append({"start": start, "end": end, "status": doc.get("status", "pending")})
+    return {"trailer": trailer_id, "ranges": ranges}
+
+
 @api_router.post("/bookings", response_model=Booking)
 async def create_booking(payload: BookingCreate):
     trailer_id = (payload.trailer or "").strip()
     if trailer_id and trailer_id not in VALID_TRAILER_IDS:
         raise HTTPException(status_code=400, detail="Unknown trailer id")
+
+    start = _parse_iso_date(payload.pickup)
+    end = _parse_iso_date(payload.end_date) or start
+
+    # Availability check if trailer + dates provided
+    if trailer_id and start and end:
+        if end < start:
+            raise HTTPException(status_code=400, detail="Return date is before pickup date")
+        cursor = db.bookings.find(
+            {"trailer": trailer_id, "status": {"$in": ["pending", "confirmed"]}}
+        )
+        async for existing in cursor:
+            ex_start = _parse_iso_date(existing.get("pickup"))
+            ex_end = _parse_iso_date(existing.get("end_date")) or ex_start
+            if _ranges_overlap(start, end, ex_start, ex_end):
+                raise HTTPException(
+                    status_code=409,
+                    detail="This trailer is already booked for the selected dates.",
+                )
 
     doc = {
         "id": str(uuid.uuid4()),
@@ -205,6 +278,7 @@ async def create_booking(payload: BookingCreate):
         "phone": payload.phone.strip(),
         "trailer": trailer_id,
         "pickup": (payload.pickup or "").strip(),
+        "end_date": (payload.end_date or "").strip(),
         "duration": (payload.duration or "24 Hours").strip(),
         "message": (payload.message or "").strip(),
         "status": "pending",
@@ -215,10 +289,21 @@ async def create_booking(payload: BookingCreate):
 
 
 # ---------- Admin routes ----------
+def _normalize_booking(d: dict) -> dict:
+    """Ensure old bookings have all required fields for the Booking model."""
+    d.setdefault("end_date", "")
+    d.setdefault("pickup", "")
+    d.setdefault("duration", "24 Hours")
+    d.setdefault("message", "")
+    d.setdefault("trailer", "")
+    d.setdefault("status", "pending")
+    return d
+
+
 @api_router.get("/admin/bookings", response_model=List[Booking])
 async def list_bookings(_: bool = Depends(require_admin)):
     docs = await db.bookings.find({}, {"_id": 0}).sort("created_at", -1).to_list(length=1000)
-    return [Booking(**d) for d in docs]
+    return [Booking(**_normalize_booking(d)) for d in docs]
 
 
 @api_router.patch("/admin/bookings/{booking_id}", response_model=Booking)
@@ -235,7 +320,7 @@ async def update_booking_status(
     )
     if not result:
         raise HTTPException(status_code=404, detail="Booking not found")
-    return Booking(**result)
+    return Booking(**_normalize_booking(result))
 
 
 @api_router.delete("/admin/bookings/{booking_id}")

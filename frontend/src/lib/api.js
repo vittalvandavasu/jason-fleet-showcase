@@ -10,6 +10,11 @@ export const api = axios.create({
 
 export const getTrailers = () => api.get('/trailers').then((r) => r.data);
 
+export const getTrailer = (id) => api.get(`/trailers/${id}`).then((r) => r.data);
+
+export const getBookedDates = (id) =>
+  api.get(`/trailers/${id}/booked-dates`).then((r) => r.data);
+
 export const createBooking = (payload) => api.post('/bookings', payload).then((r) => r.data);
 
 // admin
