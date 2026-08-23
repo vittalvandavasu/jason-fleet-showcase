@@ -3,19 +3,29 @@ import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const PHOTOS = [
   {
+    src: '/trailers/real/fleet-group.jpg',
+    caption: 'The fleet — Continental, MAXX-D, and Eagle',
+    tag: 'Our Fleet',
+  },
+  {
+    src: '/trailers/real/continental-nhr.jpg',
+    caption: 'Continental Cargo — Northwest Haul branded',
+    tag: 'Cargo',
+  },
+  {
+    src: '/trailers/real/eagle-side.jpg',
+    caption: 'Eagle Landscape — mesh-side hauler',
+    tag: 'Landscape',
+  },
+  {
     src: '/trailers/ai/maxxd-c4x-7k.jpg',
     caption: 'MAXX-D C4X — car hauler in daylight',
     tag: 'Car Hauler',
   },
   {
-    src: 'https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/wcgnabxf_087b66f8-3396-4591-90d1-05f9abf33926.jfif',
-    caption: 'Continental Cargo — our signature branding',
-    tag: 'Cargo',
-  },
-  {
-    src: '/trailers/ai/eagle-landscape.jpg',
-    caption: 'Eagle Landscape — mesh-side hauler',
-    tag: 'Landscape',
+    src: '/trailers/real/utility-back.jpg',
+    caption: 'Olympic Utility — rear mesh gate',
+    tag: 'Utility',
   },
   {
     src: '/trailers/maxxd-c4x-main.jpg',
@@ -26,11 +36,6 @@ const PHOTOS = [
     src: 'https://customer-assets-agu9un31.emergentagent.net/job_fleet-showcase-20/artifacts/8fwkwmf2_6559fc41-858d-46b3-9e4f-15c308c15c53.jfif',
     caption: 'Continental Cargo — rear view',
     tag: 'Cargo',
-  },
-  {
-    src: '/trailers/ai/olympic-utility.jpg',
-    caption: 'Olympic Utility — open box hauler',
-    tag: 'Utility',
   },
   {
     src: '/trailers/maxxd-c4x-grass.jpg',
@@ -56,11 +61,6 @@ const PHOTOS = [
     src: '/trailers/maxxd-c4x-wood.jpg',
     caption: 'MAXX-D — fresh wood deck',
     tag: 'Car Hauler',
-  },
-  {
-    src: '/trailers/eagle-falcon.jpg',
-    caption: 'Landscape utility — mesh gate lowered',
-    tag: 'Landscape',
   },
 ];
 

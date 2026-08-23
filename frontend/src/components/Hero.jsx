@@ -35,7 +35,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-6 text-lg sm:text-xl text-white/80 max-w-2xl leading-relaxed">
-            Reliable car haulers, cargo trailers, tilt decks and utility trailers —
+            Reliable car haulers, cargo trailers, and utility trailers —
             fully equipped and ready to roll. Book in 2 minutes, pick up today.
           </p>
 

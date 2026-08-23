@@ -7,7 +7,6 @@ import Features from '../components/Features';
 import HowItWorks from '../components/HowItWorks';
 import Requirements from '../components/Requirements';
 import CTABanner from '../components/CTABanner';
-import Gallery from '../components/Gallery';
 import Reviews from '../components/Reviews';
 import FAQ from '../components/FAQ';
 import Contact from '../components/Contact';
@@ -52,7 +51,6 @@ export default function Home() {
       <HowItWorks />
       <Requirements />
       <CTABanner />
-      <Gallery />
       <Reviews />
       <FAQ />
       <Contact selectedTrailer={selectedTrailer} onClear={() => setSelectedTrailer(null)} />
