@@ -3,7 +3,7 @@ import { ShieldCheck, Truck, Clock, DollarSign } from 'lucide-react';
 
 const items = [
   { icon: ShieldCheck, text: 'Fully Insured & Inspected' },
-  { icon: Truck, text: '9 Trailer Types' },
+  { icon: Truck, text: '4 Trailer Types' },
   { icon: Clock, text: 'Same-Day Pickup' },
   { icon: DollarSign, text: 'No Hidden Fees' },
   { icon: ShieldCheck, text: 'Winch + Straps Included' },
