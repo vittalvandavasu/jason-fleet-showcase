@@ -6,11 +6,16 @@ import { brand, heroImages } from '../mock';
 export default function Hero() {
   return (
     <section id="home" className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#0d1210]">
-      {/* background image */}
+      {/* background video */}
       <div className="absolute inset-0">
-        <img
-          src={heroImages.primary}
-          alt="Truck hauling trailer through Pacific Northwest"
+        <video
+          src="/videos/hero.mp4"
+          poster={heroImages.primary}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 hero-gradient" />
