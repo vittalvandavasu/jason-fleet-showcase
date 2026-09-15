@@ -61,7 +61,7 @@ export const trailers = [
       '7K drop-leg jack',
       'LED lighting, dual spare tires included',
     ],
-    pricing: { hourly: 25, weekday: 120, weekend: 160, weekly: 700, monthly: 2100 },
+    pricing: { hourly: 20, weekday: 135, weekend: 165, weekly: 750, monthly: 1575 },
   },
   {
     id: 'continental-cargo',
@@ -81,7 +81,7 @@ export const trailers = [
     gawr: '3,500 lbs / axle',
     axles: 'Single axle',
     deck: 'Fully enclosed weather-proof',
-    dimensions: '10′ L × 6′ W × 6′ H interior',
+    dimensions: '6′ H × 10′ L × 5′7″ W cargo area',
     payload: '2,040 lbs max',
     bestFor: ['Secure moves', 'Weather-sensitive loads', 'Motorcycles', 'Small vehicles'],
     features: [
@@ -91,7 +91,7 @@ export const trailers = [
       'Interior stock lighting + battery-powered LED lighting system',
       'Lockable for high-value hauls',
     ],
-    pricing: { hourly: 35, weekday: 180, weekend: 220, weekly: 1000, monthly: 3000 },
+    pricing: { hourly: 20, weekday: 90, weekend: 120, weekly: 525, monthly: 2250 },
   },
   {
     id: 'olympic-utility',
@@ -107,7 +107,7 @@ export const trailers = [
     gawr: '3,500 lbs',
     axles: 'Single axle',
     deck: 'Open box',
-    dimensions: 'Standard single-axle utility deck',
+    dimensions: '3′ H sides × 14′ L × 5′7″ W',
     payload: '2,000 lbs max',
     bestFor: ['Furniture & appliances', 'Lawn equipment', 'General cargo', 'Light construction'],
     features: [
@@ -117,7 +117,7 @@ export const trailers = [
       'Safety chains included',
       'Better weather protection than mesh',
     ],
-    pricing: { hourly: 20, weekday: 90, weekend: 130, weekly: 550, monthly: 1700 },
+    pricing: { hourly: 20, weekday: 68, weekend: 98, weekly: 413, monthly: 1275 },
   },
   {
     id: 'eagle-landscape',
@@ -144,7 +144,7 @@ export const trailers = [
       'Red side markers & reflectors',
       'Easy load / unload',
     ],
-    pricing: { hourly: 20, weekday: 80, weekend: 120, weekly: 500, monthly: 1500 },
+    pricing: { hourly: 20, weekday: 60, weekend: 90, weekly: 375, monthly: 1125 },
   },
 ];
 
