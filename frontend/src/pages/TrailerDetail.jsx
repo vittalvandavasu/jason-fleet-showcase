@@ -107,9 +107,9 @@ export default function TrailerDetail() {
                   {trailer.tag}
                 </Badge>
               )}
-              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-white/10">
-                <Weight className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-xs font-medium text-white">GVWR {trailer.gvwr}</span>
+              <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/90 backdrop-blur-sm border border-amber-400/60">
+                <Weight className="w-3.5 h-3.5 text-[#0d1210]" />
+                <span className="text-xs font-semibold text-[#0d1210]">Max Payload {trailer.payload}</span>
               </div>
             </div>
 
@@ -147,12 +147,15 @@ export default function TrailerDetail() {
               {trailer.category}
             </div>
 
-            {/* quick specs */}
+            {/* quick specs — order: Max Payload → Dimensions → Axles → Deck → GVWR */}
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <SpecTile icon={Weight} label="GVWR" value={trailer.gvwr} />
+              <SpecTile icon={Weight} label="Max Payload" value={trailer.payload} highlight />
+              {trailer.dimensions && (
+                <SpecTile icon={Ruler} label="Dimensions" value={trailer.dimensions} />
+              )}
               <SpecTile icon={TruckIcon} label="Axles" value={trailer.axles} />
               <SpecTile icon={Layers} label="Deck" value={trailer.deck} />
-              <SpecTile icon={Ruler} label="Payload" value={trailer.payload} />
+              <SpecTile icon={Weight} label="GVWR (min)" value={trailer.gvwr} />
             </div>
 
             {/* pricing grid */}
@@ -320,13 +323,23 @@ export default function TrailerDetail() {
   );
 }
 
-function SpecTile({ icon: Icon, label, value }) {
+function SpecTile({ icon: Icon, label, value, highlight = false }) {
   return (
-    <div className="bg-[#141a17] border border-white/10 rounded-lg px-3 py-3">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-amber-500 font-semibold">
+    <div
+      className={`rounded-lg px-3 py-3 border ${
+        highlight ? 'bg-amber-500/15 border-amber-500/40' : 'bg-[#141a17] border-white/10'
+      }`}
+    >
+      <div
+        className={`flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-semibold ${
+          highlight ? 'text-amber-400' : 'text-amber-500'
+        }`}
+      >
         <Icon className="w-3 h-3" /> {label}
       </div>
-      <div className="mt-1 text-white text-sm font-medium">{value}</div>
+      <div className={`mt-1 text-sm font-medium ${highlight ? 'text-amber-100' : 'text-white'}`}>
+        {value}
+      </div>
     </div>
   );
 }

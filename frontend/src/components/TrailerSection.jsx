@@ -96,9 +96,9 @@ function TrailerCard({ trailer, onBook }) {
             {trailer.tag}
           </Badge>
         )}
-        <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm border border-white/10">
-          <Weight className="w-3.5 h-3.5 text-amber-500" />
-          <span className="text-xs font-medium text-white">{trailer.gvwr}</span>
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/90 backdrop-blur-sm border border-amber-400/60">
+          <Weight className="w-3.5 h-3.5 text-[#0d1210]" />
+          <span className="text-xs font-semibold text-[#0d1210]">{trailer.payload}</span>
         </div>
         <div className="absolute bottom-4 left-4">
           <div className="text-[10px] font-semibold text-amber-500 tracking-[0.2em] uppercase">
@@ -151,17 +151,20 @@ function TrailerCard({ trailer, onBook }) {
         )}
         <h3 className="font-display text-2xl text-white leading-tight mt-1">{trailer.name}</h3>
 
-        {/* spec chips */}
-        {(trailer.axles || trailer.deck || trailer.payload) && (
+        {/* spec chips — order: max payload → dimensions → axles → deck */}
+        {(trailer.payload || trailer.dimensions || trailer.axles || trailer.deck) && (
           <div className="mt-4 flex flex-wrap gap-2">
+            {trailer.payload && (
+              <SpecChip icon={Weight} label={`Max Payload ${trailer.payload}`} highlight />
+            )}
+            {trailer.dimensions && (
+              <SpecChip icon={Ruler} label={trailer.dimensions} />
+            )}
             {trailer.axles && (
               <SpecChip icon={TruckIcon} label={trailer.axles} />
             )}
             {trailer.deck && (
               <SpecChip icon={Layers} label={trailer.deck} />
-            )}
-            {trailer.payload && (
-              <SpecChip icon={Ruler} label={`Payload ${trailer.payload}`} />
             )}
           </div>
         )}
@@ -238,11 +241,17 @@ function TrailerCard({ trailer, onBook }) {
   );
 }
 
-function SpecChip({ icon: Icon, label }) {
+function SpecChip({ icon: Icon, label, highlight = false }) {
   return (
-    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">
-      <Icon className="w-3 h-3 text-amber-500" />
-      <span className="text-[11px] text-white/80">{label}</span>
+    <div
+      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
+        highlight
+          ? 'bg-amber-500/15 border-amber-500/40 text-white'
+          : 'bg-white/5 border-white/10 text-white/80'
+      }`}
+    >
+      <Icon className={`w-3 h-3 ${highlight ? 'text-amber-400' : 'text-amber-500'}`} />
+      <span className={`text-[11px] ${highlight ? 'font-semibold' : ''}`}>{label}</span>
     </div>
   );
 }
